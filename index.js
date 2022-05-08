@@ -157,7 +157,7 @@ function iPrompt() {
 // init
 log(`connecting to ${ip}...`);
 const lgtv = require("lgtv2")({
-  url: "ws://192.168.0.200:3000",
+  url: `ws://${ip}:3000`,
 });
 
 // err
