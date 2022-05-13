@@ -7,7 +7,7 @@ This application is targeting the LG Smart TVs running WebOS, ie later 2014 or 2
 >This makes use of [lgtv2](https://github.com/hobbyquaker/lgtv2) APIs under the hood
 
 
-## Installation
+## Usage
 
 - Clone this repo
 - `cd` to the cloned directory
