@@ -26,9 +26,9 @@ This cannot be used to turn on your TV unlike the official LG remote app
 
 ## Available options
 
-- Get/set volume
-- Toggle mute
 - Launch an app
-- Turn tv off & exit
-- Increase/decrese vol by one unit
+- Get/set volume
+- Increase/decrese volume by one unit
+- Toggle mute
+- Turn tv off
 - Show a toast message
