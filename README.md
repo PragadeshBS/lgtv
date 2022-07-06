@@ -25,4 +25,15 @@ The first time you run it against the TV, you need to give the program access to
 This cannot be used to turn on your TV unlike the official LG remote app
 
 ## Available options
-<img src="files/ss.png">
+┌─────────┬─────────┬────────────────────────────────────┐
+│ (index) │ command │                does                │
+├─────────┼─────────┼────────────────────────────────────┤
+│    0    │ <num>   │          set vol to num            │
+│    1    │   v     │             get vol                │
+│    2    │   m     │           toggle mute              │
+│    3    │   l     │          launch an app             │
+│    4    │  off    │        turn tv off & exit          │
+│    5    │  +/-    │ increase/decrese vol by one unit   │
+│    6    │   t     │       show a toast message         │
+│    7    │  q/e    │               exit                 │
+└─────────┴─────────┴────────────────────────────────────┘
