@@ -11,7 +11,7 @@ var rl = readline.createInterface({
   output: process.stdout,
 });
 
-class helpMenuItem {
+class Pair {
   constructor(command, does) {
     this.command = command;
     this.does = does;
@@ -19,13 +19,14 @@ class helpMenuItem {
 }
 function printHelpMenu() {
   var helpMenuItems = [
-    new helpMenuItem("<num>", "set vol to num"),
-    new helpMenuItem("v", "get vol"),
-    new helpMenuItem("m", "toggle mute"),
-    new helpMenuItem("off", "turn tv off & exit"),
-    new helpMenuItem("+/-", "increase/decrese vol by one unit"),
-    new helpMenuItem("t", "show a toast message"),
-    new helpMenuItem("q/e", "exit"),
+    new Pair("<num>", "set vol to num"),
+    new Pair("v", "get vol"),
+    new Pair("m", "toggle mute"),
+    new Pair("l", "launch an app"),
+    new Pair("off", "turn tv off & exit"),
+    new Pair("+/-", "increase/decrese vol by one unit"),
+    new Pair("t", "show a toast message"),
+    new Pair("q/e", "exit"),
   ];
   console.table(helpMenuItems);
 }
@@ -39,7 +40,7 @@ async function setVol(vol) {
       });
     } else {
       log("volume must be [0 - 100]");
-      reject();
+      resolve();
     }
   });
 }
@@ -86,15 +87,35 @@ async function changeVol(option) {
   });
 }
 
-async function test() {
+async function launchApp() {
   return new Promise((resolve) => {
     lgtv.request(
       "ssap://com.webos.applicationManager/listLaunchPoints",
-      (err, res) => {
-        res.launchPoints.forEach((launchPoint) => {
-          log(launchPoint.id);
+      async (err, res) => {
+        var apps = [];
+        res.launchPoints.map((app, index) => {
+          apps.push(app.title);
         });
-        resolve();
+        console.table(apps);
+        rl.question("App index (-1 to exit) >>", (inp) => {
+          if (isNaN(inp)) {
+            resolve();
+          }
+          let idx = parseInt(inp);
+          if (idx < 0 || idx >= apps.length) {
+            resolve();
+          }
+          log("Launching " + res.launchPoints[idx].title + "...");
+          lgtv.request(
+            "ssap://com.webos.applicationManager/launch",
+            {
+              id: res.launchPoints[idx].id,
+            },
+            (err, res) => {
+              resolve();
+            }
+          );
+        });
       }
     );
   });
@@ -138,6 +159,8 @@ function iPrompt() {
       await changeVol(input);
     } else if (input == "t") {
       await showToast();
+    } else if (input == "l") {
+      await launchApp();
     } else if (input == "off") {
       await turnTvOff();
     } else if (input == "e" || input == "q") {
