@@ -3,6 +3,7 @@ const ip = "192.168.0.200"; // CHANGE THIS to local IP of your TV
 // other config
 const readline = require("readline");
 const process = require("process");
+const chalk = require("chalk");
 const log = console.log;
 
 // setup io
@@ -23,6 +24,7 @@ function printHelpMenu() {
     new Pair("v", "get vol"),
     new Pair("m", "toggle mute"),
     new Pair("l", "launch an app"),
+    new Pair("K", "input a key"),
     new Pair("off", "turn tv off & exit"),
     new Pair("+/-", "increase/decrese vol by one unit"),
     new Pair("t", "show a toast message"),
@@ -52,6 +54,23 @@ async function getVol() {
       log("mute: ", res.muted);
       resolve();
     });
+  });
+}
+
+async function test() {
+  log("Connecting to remote input socket");
+  return new Promise((resolve, reject) => {
+    lgtv.getSocket(
+      "ssap://com.webos.service.networkinput/getPointerInputSocket",
+      (err, sock) => {
+        if (!err) {
+          sock.send("button", { name: "PLAY" });
+          resolve();
+        } else {
+          reject(`Remote control socket error - ${err}`);
+        }
+      }
+    );
   });
 }
 
@@ -104,6 +123,7 @@ async function launchApp() {
           let idx = parseInt(inp);
           if (idx < 0 || idx >= apps.length) {
             resolve();
+            return;
           }
           log("Launching " + res.launchPoints[idx].title + "...");
           lgtv.request(
@@ -119,6 +139,72 @@ async function launchApp() {
       }
     );
   });
+}
+
+async function keys(inpKey) {
+  const availableKeys = [
+    "ENTER",
+    "UP",
+    "DOWN",
+    "LEFT",
+    "RIGHT",
+    "BACK",
+    "EXIT",
+  ];
+  if (inpKey.length == 1) {
+    console.table(availableKeys);
+    log(
+      "Enter 'k' follwed by the first letter",
+      chalk.cyan("(lowercase)"),
+      "of the corresponding key from the above list"
+    );
+    log(
+      chalk.greenBright("ku"),
+      " -> 'UP', ",
+      chalk.greenBright("kd"),
+      "-> 'DOWN' and so on"
+    );
+    log(
+      chalk.bgYellow("Exception:"),
+      chalk.yellow("'kexit' -> exit, 'ke' -> enter")
+    );
+    return;
+  }
+  if (inpKey.length)
+    return new Promise((resolve, reject) => {
+      let key = "";
+      if (inpKey == "kexit") {
+        key = "EXIT";
+      } else {
+        for (let i = 0; i < availableKeys.length; i++) {
+          if (
+            inpKey.startsWith(
+              "k" + availableKeys[i].substring(0, 1).toLocaleLowerCase()
+            )
+          ) {
+            key = availableKeys[i];
+            break;
+          }
+        }
+      }
+      if (!key) {
+        log("Invalid key");
+        resolve();
+        return;
+      }
+      lgtv.getSocket(
+        "ssap://com.webos.service.networkinput/getPointerInputSocket",
+        (err, sock) => {
+          if (!err) {
+            log("sending key", chalk.greenBright(`${key}`));
+            sock.send("button", { name: key });
+            resolve();
+          } else {
+            reject(`Remote control socket error - ${err}`);
+          }
+        }
+      );
+    });
 }
 
 async function turnTvOff() {
@@ -161,8 +247,12 @@ function iPrompt() {
       await showToast();
     } else if (input == "l") {
       await launchApp();
+    } else if (input.startsWith("k")) {
+      await keys(input);
     } else if (input == "off") {
       await turnTvOff();
+    } else if (input == "test") {
+      await test();
     } else if (input == "e" || input == "q") {
       lgtv.disconnect();
       log("Disconnected");
