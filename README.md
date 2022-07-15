@@ -1,6 +1,6 @@
 # LG WebOS controller
 
-Simple Node.js application to control LG WebOS TVs
+A simple Node.js application to control LG WebOS TVs from the command line
 
 This application is targeting the LG Smart TVs running WebOS, i.e. later 2014 or 2015 models. Previous models used another OS and other protocols and won't work with this.
 
