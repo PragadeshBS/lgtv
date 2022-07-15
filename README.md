@@ -4,8 +4,7 @@ Simple Node.js application to control LG WebOS TVs
 
 This application is targeting the LG Smart TVs running WebOS, ie later 2014 or 2015 models. Previous models used another OS and other protocols and won't work with this.
 
->This makes use of [lgtv2](https://github.com/hobbyquaker/lgtv2) APIs under the hood
-
+> This makes use of [lgtv2](https://github.com/hobbyquaker/lgtv2) APIs under the hood
 
 ## Usage
 
@@ -27,6 +26,7 @@ This cannot be used to turn on your TV unlike the official LG remote app
 ## Available options
 
 - Launch an app
+- Send keys -> Up, down, left, right, enter, back, exit
 - Get/set volume
 - Increase/decrese volume by one unit
 - Toggle mute
