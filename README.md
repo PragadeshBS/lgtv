@@ -4,7 +4,7 @@ A simple Node.js application to control LG WebOS TVs from the command line 📺
 
 This application is targeting the LG Smart TVs running WebOS, i.e. later 2014 or 2015 models. Previous models used another OS and other protocols and won't work with this. ❌
 
-> This makes use of lgtv2 APIs under the hood 🛠️
+> This makes use of [lgtv2](https://github.com/hobbyquaker/lgtv2) APIs under the hood 🛠️
 
 ## 🚀 Usage
 
