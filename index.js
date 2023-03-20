@@ -24,6 +24,7 @@ function printHelpMenu() {
     new Pair("v", "get vol"),
     new Pair("m", "toggle mute"),
     new Pair("l", "launch an app"),
+    new Pair("s", "switch input"),
     new Pair("K", "input a key"),
     new Pair("off", "turn tv off & exit"),
     new Pair("+/-", "increase/decrese vol by one unit"),
@@ -60,17 +61,14 @@ async function getVol() {
 async function test() {
   log("Connecting to remote input socket");
   return new Promise((resolve, reject) => {
-    lgtv.getSocket(
-      "ssap://com.webos.service.networkinput/getPointerInputSocket",
-      (err, sock) => {
-        if (!err) {
-          sock.send("button", { name: "PLAY" });
-          resolve();
-        } else {
-          reject(`Remote control socket error - ${err}`);
-        }
+    lgtv.request("ssap://tv/switchInput", { inputId: "HDMI_3" }, (err, res) => {
+      if (!err) {
+        log(res);
+        resolve();
+      } else {
+        reject(`Remote control socket error - ${err}`);
       }
-    );
+    });
   });
 }
 
@@ -138,6 +136,38 @@ async function launchApp() {
         });
       }
     );
+  });
+}
+
+async function switchInput() {
+  return new Promise((resolve) => {
+    lgtv.request("ssap://tv/getExternalInputList", async (err, res) => {
+      var inputs = [];
+      res.devices.map((input, index) => {
+        inputs.push(input.label + " (" + input.id + ")");
+      });
+      console.table(inputs);
+      rl.question("Input index (-1 to exit) >>", (inp) => {
+        if (isNaN(inp)) {
+          resolve();
+        }
+        let idx = parseInt(inp);
+        if (idx < 0 || idx >= inputs.length) {
+          resolve();
+          return;
+        }
+        log("Launching " + res.devices[idx].label + "...");
+        lgtv.request(
+          "ssap://tv/switchInput",
+          {
+            inputId: res.devices[idx].id,
+          },
+          () => {
+            resolve();
+          }
+        );
+      });
+    });
   });
 }
 
@@ -247,6 +277,8 @@ function iPrompt() {
       await showToast();
     } else if (input == "l") {
       await launchApp();
+    } else if (input == "s") {
+      await switchInput();
     } else if (input.startsWith("k")) {
       await keys(input);
     } else if (input == "off") {
